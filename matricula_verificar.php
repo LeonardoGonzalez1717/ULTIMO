@@ -1,10 +1,19 @@
 <?php 
 require_once 'templeat/header.php';
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alertas'] = 'Por favor introducir un usuario';
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
+}
 
 if (isset($_GET['alumno'])) {
+
+    
     $periodo_id = 0;
     $id_alumno = $_GET['alumno'];
     $ano = $_GET['ano'];
+    $id_ano = $_GET['ano'];
     $periodo = $_SESSION['periodos']['periodo'];
     $periodo_id = $_SESSION['periodos']['id'];
     $ano_nuevo = $ano + 3;
@@ -16,16 +25,55 @@ if (isset($_GET['alumno'])) {
     $new_ano = "select a.ano, s.seccion from ano a inner join seccion s on s.id = a.id_seccion where a.id = $ano_nuevo";
     $row_ano = mysqli_query($db, $new_ano);
     $rows_ano = mysqli_fetch_assoc($row_ano);
-
-    $lapso_count = "select DISTINCT lapso from notas where id_alumno = '$id_alumno' and periodo = '$periodo' order by lapso";
-    $lapsos_query_count = mysqli_query($db, $lapso_count);
-     $prueba = mysqli_num_rows($lapsos_query_count);
     
-     $row_a = "select nombre, apellido from alumno where id = $id_alumno";
+     $row_a = "select a.nombre, a.apellido, an.ano from cursando c inner join alumno a on a.id = c.id_alumno inner join ano an on an.id = c.id_ano where a.id = $id_alumno";
      $query_a = mysqli_query($db, $row_a);
      $querys_a = mysqli_fetch_assoc($query_a); 
+
+        //validar q tenga todas las materias con registro <COMIENZO>
+
+
+        $sql_materia = "SELECT DISTINCT id_pensum FROM notas WHERE id_alumno = $id_alumno and periodo = '$periodo' GROUP by lapso, id_pensum";
+        $query_materia = mysqli_query($db, $sql_materia);
+        
+        
+        while($querys_materia = mysqli_fetch_assoc($query_materia)){
     
-      
+            $id_pensum = $querys_materia['id_pensum'];
+    
+            $sql_lapso_prueba = "select DISTINCT lapso from notas where id_pensum = $id_pensum and id_alumno = $id_alumno";
+            $query_lapso = mysqli_query($db, $sql_lapso_prueba);
+            $count = mysqli_num_rows($query_lapso);
+            if ($count != 3) {
+                $_SESSION['alerta'] = 'Por favor registrar las notas en los 3 lapsos de todas las materias';
+                echo '<script>';
+                echo "var ano ='". $ano . "';";
+                echo 'window.location=" matricula_view.php?ano="+ ano;'  ;
+                echo '</script>';
+                exit;
+            }
+        }
+     $sql_materias = "select count(id_materia) as materia from pensum where id_ano = $id_ano and cursando = '$periodo'";
+     $query_materia = mysqli_query($db, $sql_materias);
+     $querys_materia = mysqli_fetch_assoc($query_materia);
+     $count_materia = $querys_materia['materia'];
+ 
+     $sql_count = "select distinct id_pensum as pensum from notas where id_alumno = $id_alumno ";
+     $query_count = mysqli_query($db,$sql_count);
+     $querys_count = mysqli_fetch_assoc($query_count);
+     $count_query = mysqli_num_rows($query_count);
+ 
+     if ($count_materia != $count_query) {
+         $_SESSION['alerta'] = 'Se deben registrar todas las materias para matricular el estudiante!';
+       
+         echo '<script>';
+          echo "var ano ='". $ano . "';";
+          echo 'window.location=" matricula_view.php?ano="+ ano;'  ;
+          echo '</script>';
+          exit;
+     }
+      //validar q tenga todas las materias con registro <fIN>
+
      $sql_periodo = "select * from periodo where id = $periodo_id_new";
      $query_periodo = mysqli_query($db, $sql_periodo);
      if (mysqli_num_rows($query_periodo) == 0) {
@@ -34,8 +82,14 @@ if (isset($_GET['alumno'])) {
           echo "var ano ='". $ano . "';";
           echo 'window.location=" matricula_view.php?ano="+ ano;'  ;
           echo '</script>';
+          exit;
         }
         
+    }else {
+        echo '<script>';
+        echo 'window.location="index.php"';
+         echo '</script>';
+         exit;
     }
     ?>
 <main>
@@ -64,10 +118,10 @@ if (isset($_GET['alumno'])) {
                         </thead>
                         <tbody>
                             <?php           
-                        if (mysqli_num_rows($lapsos_query_count) == 3) {
+                       
                         $periodo = $_SESSION['periodos']['periodo'];
                         $materia_count = array();
-                        $sqli = "SELECT DISTINCT m.materia, n.id_pensum FROM notas n inner join pensum p on n.id_pensum = p.id inner join materia m on m.id = p.id_materia WHERE id_alumno = $id_alumno and periodo = '$periodo' order by n.id_pensum, n.lapso";
+                        $sqli = "SELECT DISTINCT m.materia, n.id_pensum, m.id FROM notas n inner join pensum p on n.id_pensum = p.id inner join materia m on m.id = p.id_materia WHERE id_alumno = $id_alumno and periodo = '$periodo' order by n.id_pensum, n.lapso";
                         $guardar = mysqli_query($db, $sqli); 
                         $count_evaluacion = mysqli_num_rows($guardar);
                         $i = 0;
@@ -75,6 +129,8 @@ if (isset($_GET['alumno'])) {
                             $i++;
                             $materia_al = $materia['materia'];
                             $pensum = $materia['id_pensum'];
+                            $id_materia = $materia['id'];
+
                             ?>
 
                             <tr class="">
@@ -109,12 +165,15 @@ if (isset($_GET['alumno'])) {
                             $promedios_final = number_format($promedios_final, 2);
                         }
                         echo '<td>'.$promedios_final.'</td>';
+
                         if ($promedios_final >= 10) {
                             echo '<td style = "color: black; background-color: #b3d4ba;"> Aprobó </td>';
                             $materia_count[] = $promedios_final;
                         }else{
                             echo '<td style = "color: black; background-color: #f8d7da;"> Reprobó </td>';
-                            echo '<div>El estudiante no aprobo La materia de: '.$materia_al. ', ira a reparación</div>';
+                            
+                             $reprobo = '<div>El estudiante ha reprobado, ira a reparacion</div>';
+                              
                             $alumno_verificar = "select id_alumno from cursando where id_alumno = $id_alumno and id_periodo = $periodo_id_new";
                             $query = mysqli_query($db, $alumno_verificar);
                             if (mysqli_num_rows($query) > 0) {
@@ -126,7 +185,7 @@ if (isset($_GET['alumno'])) {
                                     $usuario_id = $_SESSION['usuario_admin']['id'];
                                 }
                                 
-                                $reparacion_verify = "select * from reparacion where id_alumno = $id_alumno and periodo = '$periodo'";
+                                $reparacion_verify = "select * from reparacion where id_alumno = $id_alumno and id_materia = $id_materia and id_ano = $id_ano and periodo = '$periodo'";
                                 $reparacion_query = mysqli_query($db,$reparacion_verify);
                                 if (mysqli_num_rows($reparacion_query) > 0) {
                                     $reparacion_ya = true;
@@ -139,9 +198,10 @@ if (isset($_GET['alumno'])) {
                                     $sqli_auditoria = "insert into auditoria values(null, '$movimiento', $usuario_id, now())";
                                     $query_auditoria = mysqli_query($db, $sqli_auditoria);
                                     if ($query_auditoria) {
-                                        
-                                        $insert_reparacion = "insert into reparacion values(null, $id_alumno, $pensum, null, '$periodo')";
+
+                                        $insert_reparacion = "INSERT INTO reparacion (id, id_alumno, id_ano, id_materia, cantidad_evaluacion, periodo) VALUES(NULL, '$id_alumno', '$id_ano', '$id_materia', NULL, '$periodo')";
                                         $reparacion = mysqli_query($db, $insert_reparacion);
+                                        
                                     }
                                 }
                             }
@@ -149,17 +209,23 @@ if (isset($_GET['alumno'])) {
                             
                         }
                         echo '</tr>';
-                       
                     }
-                  
-                             
+                    
+                    
                     $count_mate = count($materia_count);
                     
-                        if ($count_mate == $count_evaluacion) {
-                        $alumno_verificar = "select id_alumno from cursando where id_alumno = $id_alumno and id_periodo = $periodo_id_new";
-                        $query = mysqli_query($db, $alumno_verificar);
-                    if (mysqli_num_rows($query) > 0) {
-                        $alumno_verificado = true;
+                    if ($count_mate == $count_evaluacion) {
+                            $sql_graduar = "select max(ano) as ano from ano";
+                            $query_graduar = mysqli_query($db, $sql_graduar);
+                            $querys_graduar = mysqli_fetch_assoc($query_graduar);
+                            if ($querys_graduar['ano'] == $querys_a['ano']) {
+                             echo '<div>El estudiante se ha graduado con exito</div>';
+                            }else{
+
+                                $alumno_verificar = "select id_alumno from cursando where id_alumno = $id_alumno and id_periodo = $periodo_id_new";
+                                $query = mysqli_query($db, $alumno_verificar);
+                                if (mysqli_num_rows($query) > 0) {
+                                    $alumno_verificado = true;
                       echo 'NOTA: el estudiante ya esta cursando el siguiente periodo';
                     }else{
                             $insert = "insert into cursando values(null, '$id_alumno', '$ano_nuevo', '$periodo_id_new')";
@@ -183,14 +249,14 @@ if (isset($_GET['alumno'])) {
                                     
                                 }
                             }
+                        }
                        
                     } 
                     
                             }
-                }else{
-                    echo 'Por favor completar de registrar las notas en todos los lapsos';
-                }
                
+               
+                           
                         ?>
                         </tbody>
                     </table>
@@ -203,5 +269,12 @@ if (isset($_GET['alumno'])) {
         </div>
     </div>  
 </div>
+                    <?php if (isset($reprobo)) {
+                        echo $reprobo;
+                    }
+                    ?>
 </main>
-<?php require_once 'templeat/footer.php'; ?>
+
+<?php require_once 'templeat/footer.php'; 
+borrarErrores();
+?>

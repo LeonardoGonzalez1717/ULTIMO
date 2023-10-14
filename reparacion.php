@@ -1,12 +1,46 @@
 <?php require_once 'templeat/header.php';
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alertas'] = 'Por favor introducir un usuario';
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
+}
+
 $periodo = $_SESSION['periodos']['periodo'];
-$sql = "select distinct an.nombre, a.ano, r.periodo, r.id_alumno from reparacion r inner join alumno an on an.id = r.id_alumno inner join pensum p on p.id = r.id_pensum inner join ano a on a.id = p.id_ano where cursando = '$periodo'";
+$sql = "select distinct an.nombre, a.ano, r.cantidad_evaluacion, r.id_alumno, r.periodo from reparacion r inner join alumno an on an.id = r.id_alumno inner join ano a on a.id = r.id_ano where r.periodo = '$periodo'";
 $guardar = mysqli_query($db, $sql);
 ?>
 
+<style>
+    form{
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        border: .5px solid var(--blue);
+        height: 250px;
+        /* padding: 50px 60px; */
+        justify-content: center;
+        padding: 0px 30px;
+        border-radius: 7px;
+    }
+</style>
 
 <main>
-    
+<?php
+$id_ano = $_GET['id_ano'];
+$sqli = "select id from reparacion where cantidad_evaluacion is not null and id_ano = $id_ano and periodo = '$periodo'";
+$query = mysqli_query($db, $sqli);
+if (mysqli_num_rows($query) == 0 ) {
+    echo '<form action="plan_reparacion.php" method ="post">
+    <label> Cantidad de evaluaciones
+    </label>
+    <input type="number" name ="cantidad" required>    
+    <input type="hidden" name= "id_ano" value="'.$id_ano.'">
+    <input type="submit">
+    </form>';
+}else{
+
+    ?>    
 <div class="container mt-2" style="height: 500px;  position: relative;">
 <div class="ayuda">
     
@@ -24,14 +58,15 @@ $guardar = mysqli_query($db, $sql);
                             <thead>
                                 <tr>
                                         
-                                
-                                   
+                                <?php   
+                                if (mysqli_num_rows($guardar) > 0) { ?>
                                     <th scope="col">Nombre</th>
-                                   
                                     <th scope="col">Año</th>
                                     <th scope="col">Periodo</th>
                                     <th scope="col">Notas</th>
-                                   
+                                   <?php }else{
+                                       echo '<th>Advertencia</th>';
+                                    } ?>
                                     
                                 </tr>
                             </thead>
@@ -55,7 +90,7 @@ $guardar = mysqli_query($db, $sql);
                                 <?php
                             endwhile;
                         }else{
-                            echo 'No hay estudiantes en reparación';
+                            echo '<td>No hay estudiantes en reparación</td>';
                         }
                             
                              ?>     
@@ -70,7 +105,9 @@ $guardar = mysqli_query($db, $sql);
         </div>
     </div>  
 </div>
-</main>
 
 
-<?php require_once 'templeat/footer.php' ?>
+<?php
+        }
+echo '</main>';
+ require_once 'templeat/footer.php' ?>

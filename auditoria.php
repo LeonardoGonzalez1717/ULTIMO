@@ -1,9 +1,15 @@
 <?php
 require_once 'templeat/header.php';
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alertas'] = 'Por favor introducir un usuario';
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
+}
 ?>
 <main>
 
-    <div id="principal">
+    <div id="principal" style="overflow-y: scroll; height: 400px;">
         
 <h1>Auditoria</h1>
 

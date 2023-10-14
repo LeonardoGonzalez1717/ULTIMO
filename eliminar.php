@@ -13,7 +13,7 @@ $url .= "?id=" .urldecode($ano);
 $query_alumno = "select * from alumno where id = $codigo";
 $query_a = mysqli_query($db, $query_alumno);
 $query_as = mysqli_fetch_assoc($query_a);
-$alumno_name = $query_as['nombre'];
+$alumno_name = $query_as['ginombre'];
 
 $sql = ("DELETE c, a  FROM cursando c inner join alumno a on c.id_alumno = a.id where a.id = $codigo and c.id_periodo = $periodo");
 $resultado = mysqli_query($db, $sql);

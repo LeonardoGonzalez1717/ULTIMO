@@ -3,7 +3,7 @@ require_once 'model/conexion.php';
 require_once 'helpers/funciones.php';
 session_start();
 
-$materia = $_POST['materia'];
+$id_pensum = $_POST['materia'];
 $ano = $_POST['ano'];
 
 //convirtiendo string en enteros
@@ -12,7 +12,7 @@ $lapso = $_POST['lapso'];
 
 
 $url = "notas_view.php";
-$url .= "?materia=" .urlencode($materia);
+$url .= "?materia=" .urlencode($id_pensum);
 $url .= "&ano=" .urlencode($ano);
 $url .= "&lapso=" .urlencode($lapso);
 $url .= "&filas=" .urlencode($cantidad);
@@ -21,13 +21,19 @@ $url .= "&filas=" .urlencode($cantidad);
     if (isset($_POST['pensum']) && !empty($_POST['pensum']) ) {
         $pensum = $_POST['pensum'];
     }else{
-        echo 'error3';
+        echo '<script>';
+        echo 'window.location="index.php"';
+         echo '</script>';
+         exit;
     }
     
     if (isset($_POST['alumno']) && !empty($_POST['alumno'])) {
         $alumno =$_POST['alumno']; 
     }else{
-        echo 'error4';
+        echo '<script>';
+        echo 'window.location="index.php"';
+         echo '</script>';
+         exit;;
     }
                 $periodo = $_SESSION['periodos']['periodo'];
                 if(existeNota($db, $alumno, $pensum, $lapso, $periodo)) {

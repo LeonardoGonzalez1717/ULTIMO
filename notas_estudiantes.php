@@ -2,7 +2,9 @@
 require_once 'templeat//header.php';
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 if (isset($_GET['alumno']) && isset($_GET['pensum'])) {
 
@@ -19,7 +21,10 @@ if (isset($_GET['alumno']) && isset($_GET['pensum'])) {
 
       
 }else{
-    echo 'no existe';
+    echo '<script>';
+    echo 'window.location="index.php"';
+     echo '</script>';
+     exit;
 }
 ?>
 <div class="container mt-2" style="height: 500px;  position: relative;">

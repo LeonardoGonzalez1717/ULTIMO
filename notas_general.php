@@ -2,15 +2,18 @@
 require_once 'templeat//header.php';
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 if (isset($_GET['alumno'])) {
     $periodo = $_SESSION['periodos']['periodo'];
     $id_alumno = $_GET['alumno'];
+    $id_ano = $_GET['ano'];
     
     
 
-    $sql = "select a.nombre, a.apellido from notas n inner join alumno a on a.id = n.id_alumno inner join pensum p on p.id = n.id_pensum inner join materia m on m.id = p.id_materia where id_alumno = $id_alumno and periodo = '$periodo'";
+    $sql = "select nombre, apellido from alumno where id = $id_alumno";
     $guardar = mysqli_query($db, $sql);
     
     $guardado = mysqli_fetch_assoc($guardar);
@@ -18,9 +21,17 @@ if (isset($_GET['alumno'])) {
 
       
 }else{
-    echo 'no existe';
+    echo '<script>';
+    echo 'window.location="index.php"';
+     echo '</script>';
+     exit;
 }
 ?>
+<?php if (isset($_SESSION['alerta'])): ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo $_SESSION['alerta']?>
+        </div>
+      <?php endif; ?>
 <div class="container container-notas mt-2">
 <div class="ayuda">
     
@@ -54,13 +65,15 @@ if (isset($_GET['alumno'])) {
                                 $promedio_general = array();
                                
                                
-                                    $sql = "SELECT n.id_pensum, m.materia, n.lapso FROM notas n INNER JOIN pensum p ON n.id_pensum = p.id INNER JOIN materia m on m.id = p.id_materia  WHERE n.id_alumno = $id_alumno and periodo = '$periodo' GROUP BY n.id_pensum ORDER BY n.lapso ASC;"; 
+                                    $sql = "SELECT m.materia, p.id FROM pensum p INNER JOIN materia m on m.id = p.id_materia  WHERE p.id_ano = $id_ano and cursando = '$periodo'"; 
                                     $guardar = mysqli_query($db, $sql);
-                                    
+                                        if (mysqli_num_rows($guardar) > 0) {
+                                            
+                                        
                                         while($guardado = mysqli_fetch_assoc($guardar)){
                                             $promedios_total = array();
-                                        
-                                          $id_pensum = $guardado['id_pensum'];
+                                        $promedios_final = '';
+                                          $id_pensum = $guardado['id'];
                                     
                                        
                                     ?>
@@ -84,15 +97,21 @@ if (isset($_GET['alumno'])) {
                                         }
                                          if (!empty($promedios_final)): ?>
                                             <td><?=$promedios_final?></td>  
-                                            <?php endif; ?>
-                                                
-                                                <td><a title="Notas detalladas" class="text-success" href="notas_estudiantes.php?alumno=<?=$id_alumno?>&pensum=<?=$guardado['id_pensum'] ?>"><i class="bi bi-archive-fill"></i></a></td>
+                                            <?php else: ?>
+                                                <td>No hay notas registradas</td>  
+                                                <?php endif; ?>
+                                                <td><a title="Notas detalladas" class="text-success" href="notas_estudiantes.php?alumno=<?=$id_alumno?>&pensum=<?=$guardado['id'] ?>"><i class="bi bi-archive-fill"></i></a></td>
                                                 
                                                 
                                                 
                                             </tr>
                                             
                                             <?php } 
+                                        }else {
+                                            echo '<tr>';
+                                            echo '<td> No hay pensum creado</td>';
+                                            echo '</tr>';
+                                        }
                                         
                             ?> 
                                 
@@ -110,7 +129,7 @@ if (isset($_GET['alumno'])) {
     </div>  
                 <?php
                             if (!empty($promedio_global)) {
-
+                                    $promedio_global = number_format($promedio_global, 2);
                                      echo '<p style="padding: 10px; font-weight: bold;"> Promedio final: '.$promedio_global.'</p>'; 
                             }
                             ?>
@@ -124,13 +143,13 @@ if (isset($_GET['alumno'])) {
                                          
                                          while($boletin = mysqli_fetch_assoc($boletines)):
                                              ?>
-                                                     <a href="boletin.php?lapso=<?=$boletin['lapso']?>&alumno=<?=$id_alumno?>"> Crear boletin lapso <?=$boletin['lapso']?></a>
+                                                     <a href="boletin.php?lapso=<?=$boletin['lapso']?>&alumno=<?=$id_alumno?>&ano=<?=$id_ano?>"> Crear boletin lapso <?=$boletin['lapso']?></a>
                                                      
                                                      <?php 
                                              
                                          endwhile;
                                          if ($boletin_count == 3):?>
-                                             <a href="boletin.php?alumno=<?=$id_alumno?>">Crear boletin</a>
+                                             <a href="boletin.php?alumno=<?=$id_alumno?>&ano=<?=$id_ano?>">Crear boletin</a>
                                              <?php endif; 
                                              ?>
                                 </div>
@@ -138,5 +157,6 @@ if (isset($_GET['alumno'])) {
 
 
 <?php 
+borrarErrores();
 require_once 'templeat/footer.php'; 
 ?>

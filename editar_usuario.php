@@ -1,5 +1,11 @@
 <?php 
 require_once 'templeat/header.php';
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alertas'] = 'Por favor introducir un usuario';
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
+}
 if (isset($_GET['usuario'])) {
     $usuario_id = $_GET['usuario'];
     $usuarios = traerUsuarios($db, $usuario_id); 
@@ -42,10 +48,16 @@ if (isset($_GET['usuario'])) {
                         </select>
 
                         <div class="mb-3">
-                            <label class="form-label">Cargo del personal</label>
+                            <label class="form-label">Email</label>
                             <input type="text" class="form-control" name="cargo" required
-                            value=" <?=$usuario['cargo']?>" > 
+                            value=" <?=$usuario['email']?>" > 
                             <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'cargo'): '';?>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña(opcional)</label>
+                            <input type="text" class="form-control" name="password" 
+                            value="" placeholder="Si no desea cambiar de contraseña, dejar vacio"> 
+                            <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'password'): '';?>
                         </div>
 
 

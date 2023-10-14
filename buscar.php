@@ -2,7 +2,9 @@
 require_once 'templeat/header.php';
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 if (empty($_POST['buscador'])) {
     echo 'la busqueda no puede estar vacia';

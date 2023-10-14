@@ -3,9 +3,9 @@ require_once 'templeat/header.php';
 
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
-    
-
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 
 if (isset($_POST['materia']) && isset($_POST['ano']) && isset($_POST['lapso'])) {
@@ -18,22 +18,22 @@ if (isset($_POST['materia']) && isset($_POST['ano']) && isset($_POST['lapso'])) 
     
 }elseif(isset($_GET['materia']) && isset($_GET['ano']) && isset($_GET['lapso'])){
     $ano = $_GET['ano'];
-    $materia = $_GET['materia']; 
+    $id_pensum = $_GET['materia']; 
     $lapso = $_GET['lapso'];
     
 }else{
     $_SESSION['alerta']['plan'] = 'los campos no deben estar vacios';
     echo '<script>window.location="notas.php"</script>';
 }
- if (isset($materia) && $ano) {
-     $sql = "select p.id, p.id_ano, p.id_materia,p.id, m.materia, a.ano, s.seccion from pensum p inner join materia m on p.id_materia = m.id inner join ano a on p.id_ano = a.id inner join seccion s on a.id_seccion = s.id where p.id_materia = $materia and p.id_ano = $ano";
+ if (isset($id_pensum) && $ano) {
+     $sql = "select p.id, p.id_ano, p.id_materia,p.id, m.materia, a.ano, s.seccion from pensum p inner join materia m on p.id_materia = m.id inner join ano a on p.id_ano = a.id inner join seccion s on a.id_seccion = s.id where p.id = $id_pensum and p.id_ano = $ano";
      $guardar = mysqli_query($db, $sql);
     $notas_total = array();
 
     $periodo = $_SESSION['periodos']['periodo'];
     
     //planificacion(cantidad de evaluaciones)
-    $sql_plan = "select * from planificacion where id_pensum = $id_pensum";
+    $sql_plan = "select * from planificacion where id_pensum = $id_pensum and lapso = $lapso";
     $guardar_plan =mysqli_query($db, $sql_plan);
     $plan = mysqli_fetch_assoc($guardar_plan);
 
@@ -167,7 +167,7 @@ if (isset($_POST['materia']) && isset($_POST['ano']) && isset($_POST['lapso'])) 
                                                 <input type="hidden" name="lapso" value="<?=$lapso?>">
                                                 <input type="hidden" name="alumno" value="<?= $alumno['id_alumno']?>">
                                                 <input type="hidden" name="pensum" value="<?=$guardado['id']?>">
-                                                <input type="hidden" name = "materia" value="<?=$materia?>">
+                                                <input type="hidden" name = "materia" value="<?=$id_pensum?>">
                                                 <input type="hidden" name="ano" value="<?=$ano?>">
                                                 
                                                 <td><input type="submit" value="Enviar Notas"></td>

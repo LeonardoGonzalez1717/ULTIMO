@@ -17,41 +17,36 @@ require_once 'helpers/funciones.php';
 <body>
 
     
-    <div class="form_container">
+    
+<div class="form_container">
        <?php if (isset($_SESSION['alerta'])): ?>
         <div class="alert alert-danger" role="alert">
             <?php echo $_SESSION['alerta']?>
         </div>
-      <?php endif; ?>
-   <form action="login_view.php" method="post">
-    <h1>INICIO DE SESION</h1>
+      <?php elseif(isset($_SESSION['guardado'])): ?>
+      <div class="alert alert-success" role="alert">
+            <?php echo $_SESSION['guardado']?>
+        </div>
+        <?php endif; ?>
+   <form action="password_recovery.php" method="post">
+    <h1>Recuperación de contraseña</h1>
             <div class="group">
-            <input  type="text" class="input" name="nombre">
+            <input  type="text" class="input" name="email">
             <span class="highlight"></span>
             <span class="bar">
 
                 <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'nombre'): '';?>
             </span>
-            <label>Nombre</label>
+            <label>Email del usuario a recuperar</label>
             </div>
-                <div class="group">
-                <input  type="text" class="input" name="cargo">
-                <span class="highlight"></span>
-                <span class="bar"></span>
-                <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'cargo'): '';?>
-                <label>Email</label>
+            
+            <input type="submit" value="Cambiar contraseña">
+            <a href="login_view.php?gmail=1">inicio de sesion</a>
+        </form>
             </div>
-            <div class="group">
-            <input  type="text" class="input" name="password">
-            <span class="highlight"></span>
-            <span class="bar"></span>
-            <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'password'): '';?>
-            <label>Contraseña</label>
-            </div>
-            <a href="p_recovery.php">¿Recuperar contraseña?</a>
-        <input type="submit" value="Iniciar Sesion">
-    </form>
-   </div>
+           
+            
+  
 </body>
 </html>
 <?php borrarErrores(); ?>

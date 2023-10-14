@@ -10,6 +10,11 @@ if (isset($_POST) && !empty($_POST)) {
 
 
 
+}else {
+    echo '<script>';
+    echo 'window.location="index.php"';
+     echo '</script>';
+     exit;
 } 
 if (count($errores) == 0) {
     

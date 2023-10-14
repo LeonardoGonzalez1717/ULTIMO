@@ -1,9 +1,10 @@
 <?php 
 require_once 'templeat/header.php'; 
-
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
-    $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+  $_SESSION['alertas'] = 'Por favor introducir un usuario';
+  echo '<script>';
+      echo 'window.location="login_form.php"';
+       echo '</script>';
 }
 ?>
 <?php if (isset($_SESSION['guardado'])) : ?>
@@ -16,9 +17,9 @@ if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
       </div>
       <?php endif; ?>
 
-    <h2>Periodo que a registrar</h2>
+    <h2>Periodo a registrar</h2>
     <form method="POST" action='periodos_view.php' id="register">
-        <label for="first-name">Periodo que desea registrar<input id="first-name" name="periodo_nuevo" type="text" required />
+        <label for="first-name">Periodo<input id="first-name" name="periodo_nuevo" type="text" required />
         <?php echo isset($_SESSION['alertas']) ? mostrarErrores($_SESSION['alertas'], 'periodo'): '';?>
         </label>
         <input type="submit"  value="Enviar">

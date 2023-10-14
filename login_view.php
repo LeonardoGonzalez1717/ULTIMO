@@ -15,11 +15,11 @@ if (!empty($_POST["cargo"]) && !empty($_POST["password"]) && !empty($_POST['nomb
     }
     
     //Validar usuario
-    if (isset($_POST["cargo"]) && is_string($_POST["cargo"]) && !preg_match("/[0-9]/", $_POST["cargo"])) {
+    if (isset($_POST["cargo"]) && filter_var($_POST["cargo"], FILTER_VALIDATE_EMAIL)) {
         $cargo = trim($_POST["cargo"]);
         $cargo_escapado = mysqli_escape_string($db, $cargo);
     }else{
-        $alertas['cargo'] = 'Por favor introducir un cargo valido';
+        $alertas['cargo'] = 'Por favor introducir un email valido';
         
     }
     //Validar COntraseña
@@ -28,14 +28,14 @@ if (!empty($_POST["cargo"]) && !empty($_POST["password"]) && !empty($_POST['nomb
         $password_escapado = mysqli_escape_string($db, $password);
         //encriptado
         $encode = base64_encode($password_escapado);
-        var_dump($encode);
+        
     }else{
         $alertas['password'] = 'Por favor introducir una password valida';
         
     }
     if (count($alertas) == 0) {
         
-        $sql = "select * from usuarios where nombre = '$nombre_escapado' and cargo = '$cargo_escapado' and password = '$encode'";
+        $sql = "select * from usuarios where nombre = '$nombre_escapado' and email = '$cargo_escapado' and password = '$encode'";
         $guardar = mysqli_query($db, $sql);
         if ($guardar == true && mysqli_num_rows($guardar) > 0) {
             $usuario = mysqli_fetch_assoc($guardar);
@@ -65,10 +65,13 @@ if (!empty($_POST["cargo"]) && !empty($_POST["password"]) && !empty($_POST['nomb
     $_SESSION['alertas'] = $alertas;
          header('location: login_form.php');
 }
-}else{
+}elseif($_GET['gmail']){
+    
+    header('location: login_form.php');
+}else {
+    
     $_SESSION['alerta'] = 'Error al iniciar sesion';
     header('location: login_form.php');
-
 }
 
 ?>

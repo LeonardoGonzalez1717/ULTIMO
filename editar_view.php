@@ -93,7 +93,17 @@ if (!empty($codigo) && !empty($ano)) {
         $id_usuario = $_POST['id'];
         $url = "editar_usuario.php";
         $url .= "?usuario=" . urlencode($id_usuario);
+        $cargo= trim($_POST["cargo"]);
 
+        if (isset($_POST['password']) && !empty($_POST['password'])) {
+            $password= trim($_POST["password"]);
+            if (isset($password) && preg_match("/[0-9]/", $password) && preg_match("/[a-zA-Z]/", $password)){
+        
+                $cargo_escapado =  mysqli_real_escape_string($db, $password);
+            }else {
+                $alertas['password'] = 'la password debe  llevar numeros y letras';
+            }
+        }
     $id_cargo = $_POST['id_cargo'];
     $alertas = array();
     
@@ -105,17 +115,23 @@ if (!empty($codigo) && !empty($ano)) {
         $alertas['nombre'] = 'el nombre debe  llevar unicamente letras';
     }
   
-    if (isset($_POST["cargo"]) && !is_numeric($_POST["cargo"]) && !preg_match("/[0-9]/", $_POST["cargo"])) {
-        $cargo= trim($_POST["cargo"]);
+    if (isset($cargo) && filter_var($cargo, FILTER_VALIDATE_EMAIL)) {
+        
         $cargo_escapado =  mysqli_real_escape_string($db, $cargo);
     }else {
         $alertas['cargo'] = 'el cargo debe  llevar unicamente letras';
     }
+   
 
 
     if (count($alertas) == 0) {
-        
-        $sql = "update usuarios set nombre = '$nombre_escapado', cargo = '$cargo_escapado', id_rol = '$id_cargo' where id = $id_usuario";
+        if (isset($password)) {
+            $clave_encrip = base64_encode($password);
+            $sql = "update usuarios set nombre = '$nombre_escapado', email = '$cargo_escapado', password = '$clave_encrip', id_rol = '$id_cargo' where id = $id_usuario";
+            
+        }else {
+            $sql = "update usuarios set nombre = '$nombre_escapado', email = '$cargo_escapado', id_rol = '$id_cargo' where id = $id_usuario";
+        }
         $guardar = mysqli_query($db, $sql);
 
         if (isset($_SESSION['usuario_admin'])) {

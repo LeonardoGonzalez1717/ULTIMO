@@ -1,9 +1,11 @@
 <?php
 require_once 'templeat/header.php';
-
+$periodo = $_SESSION['periodos']['id'];
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 if (isset($_GET['id'])) {
     $codigo = $_GET['id'];
@@ -36,9 +38,23 @@ if (isset($_SESSION['eliminado']['exito'])) : ?>
       <input class="form-control me-2" type="buscar" aria-label="Search"  name="buscador">
       <button class="btn btn-success bi bi-search" type="submit"></button>
   </form>
+
+        
+        <?php
+            $sql = "select count(id_alumno) as alumnos from cursando";
+            if (isset($codigo)) {
+                $sql .= " where id_ano = $codigo and id_periodo = $periodo";
+            }else{
+                $sql .= " where id_periodo = $periodo";
+             }
+            $query = mysqli_query($db, $sql);
+            $querys = mysqli_fetch_assoc($query);
+        ?>
+        
+  
 <main>
-    
-<div class="container mt-2" style="height: 500px;  position: relative;">
+
+<div class="container mt-2" style="height: 500px;  position: relative; ">
 <div class="ayuda">
     
     <div class="row justify-content-center">
@@ -59,6 +75,7 @@ if (isset($_SESSION['eliminado']['exito'])) : ?>
                                         <?php endif; 
                                         ?>
                 </div>
+                
                 <div class="">
                     <div class="">
                         <table class="table align-middle ">
@@ -71,7 +88,7 @@ if (isset($_SESSION['eliminado']['exito'])) : ?>
                                     <th scope="col">Apellido</th>
                                     <th scope="col">Cedula</th>
                                     <th scope="col">Año</th>
-                                    <th scope="col">Seccion</th>
+                                    <th scope="col">Sección</th>
                                     <th scope="col">Periodo</th>
                                     <th scope="col" colspan="3">Opciones</th>
                                     
@@ -80,15 +97,15 @@ if (isset($_SESSION['eliminado']['exito'])) : ?>
                             <tbody>
                         
                                 <?php
-                                 $periodo = $_SESSION['periodos']['id'];
+                                 
                                
                                     if (isset($codigo)){
-                                                                
-                                            $alumnos = ConseguirTodosEstudiantes($db, $codigo, $periodo);
-
-                                                }elseif(!isset($codigo)){ 
-                                            $alumnos = ConseguirTodosEstudiantes($db, null, $periodo);
-                                                        
+                                        
+                                        $alumnos = ConseguirTodosEstudiantes($db, $codigo, $periodo);
+                                        
+                                    }elseif(!isset($codigo)){ 
+                                        $alumnos = ConseguirTodosEstudiantes($db, null, $periodo);
+                                        
                                                 }
                                             if (!empty($alumnos)):
                                         while($alumno = mysqli_fetch_assoc($alumnos)):    
@@ -118,11 +135,15 @@ if (isset($_SESSION['eliminado']['exito'])) : ?>
                     </div>
             
                  </div>
-             </div>
-        
+                </div>
+                
             </div>
         </div>
     </div>  
+</div>
+<div style="display: flex; justify-content: end; align-items: center; width: 40%; padding: 10px 0; gap: 5px;">
+    <img src="../img//people-svgrepo-com.svg" alt="" width="20px">
+<span ><?=$querys['alumnos'] ?></span>
 </div>
 </main>
 

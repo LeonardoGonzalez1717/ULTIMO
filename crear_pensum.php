@@ -1,10 +1,21 @@
 <?php
 require_once 'templeat/header.php'; 
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alerta'] = 'Por favor introducir un usuario';
+        echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
+}
 if (isset($_POST['ano'])) {
     
     $ano = $_POST['ano'];
+}elseif (isset($_GET['ano'])) {
+        $ano = $_GET['ano'];
 }else{
-    $ano = $_GET['ano'];
+    echo '<script>';
+    echo 'window.location="index.php"';
+     echo '</script>';
+     exit;
 }
 if (isset($ano)) {
     

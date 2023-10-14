@@ -143,7 +143,10 @@ if ($query) {
         header('location: usuario_nuevo.php');
     }
 }else{
-   echo 'error';
+    echo '<script>';
+    echo 'window.location="index.php"';
+     echo '</script>';
+     exit;
 }
 
 ?>

@@ -1,7 +1,9 @@
 <?php require_once 'templeat/header.php';
 if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
     if (isset($_GET['codigo'])) {
        
@@ -12,7 +14,10 @@ if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
     $sql = "SELECT a.nombre, a.apellido, a.id, a.edad, a.cedula, c.*, p.periodo, an.ano FROM cursando c inner join alumno a on c.id_alumno = a.id inner join periodo p on p.id = c.id_periodo inner join ano an on c.id_ano = an.id where a.id = $codigo and c.id_periodo =$periodo";
     $editar = mysqli_query($db, $sql);
     }else{
-        echo 'error';
+        echo '<script>';
+        echo 'window.location="index.php"';
+         echo '</script>';
+         exit;
     }
 
 

@@ -44,8 +44,13 @@ if (!empty($_POST['lapso']) && !empty('evaluaciones')) {
            
         }
     }else{
-        echo 'error1';
+        echo '<script>';
+        echo 'window.location="index.php"';
+         echo '</script>';
+         exit;
     }
 }else{
-    echo 'error2';
+    $_SESSION['alerta'] = 'los campos no pueden estar vacios';
+    header('location: planificacion.php');
+
 }

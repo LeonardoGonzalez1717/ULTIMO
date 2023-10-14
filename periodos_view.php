@@ -70,8 +70,8 @@ if (isset($_POST['periodo_nuevo'])){
     if (isset($_POST['materia']) && isset($_POST['lapso']) && isset($_POST['evaluaciones']) && isset($_POST['ano'])) {
         
         $id_ano = $_POST['ano'];
-        $id_materia = $_POST['materia'];
-        var_dump($id_materia);
+        $id_pensum = $_POST['materia'];
+        
         
 
 
@@ -94,14 +94,14 @@ if (isset($_POST['periodo_nuevo'])){
         
         
         if(count($alertas) == 0){
-            $sqlE = "select * from planificacion where id_materia = '$id_materia' and id_ano = '$id_ano' and lapso = '$lapso' and periodo = '$periodo'";
+            $sqlE = "select * from planificacion where id_pensum = $id_pensum and lapso = $lapso";
             $guardarE = mysqli_query($db, $sqlE); 
             if ($guardarE == true && mysqli_num_rows($guardarE) == 1) {
                 $_SESSION['alerta'] = 'La planificacion de esta materia ya existe';
                 header('location: planificacion.php');
             }else{
 
-                $sql = "insert into planificacion values(null, '$id_materia', '$id_ano', '$evaluaciones', '$lapso_escapado', '$periodo')";
+                $sql = "insert into planificacion values(null, $id_pensum, $evaluaciones, $lapso)";
                 $guardar = mysqli_query($db, $sql);
                 if ($guardar) {
 
@@ -124,6 +124,8 @@ if (isset($_POST['periodo_nuevo'])){
                     }else{
                         echo 'error4';
                     }
+                }else{
+                    echo 'echo';
                 }
             }
         }else{
@@ -133,10 +135,13 @@ if (isset($_POST['periodo_nuevo'])){
            
         }
     }else{
-        echo 'error1';
+        $_SESSION['alerta'] = 'los campos no pueden estar vacios';
+    header('location: planificacion.php');
     }
 }else{
-    echo 'error2';
+    $_SESSION['alerta'] = 'los campos no pueden estar vacios';
+    header('location: planificacion.php');
+
 }
 
 

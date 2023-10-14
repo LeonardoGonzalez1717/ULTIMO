@@ -1,8 +1,10 @@
 <?php 
 include_once 'templeat/header.php';
-if (!isset($_SESSION['usuario_admin']) && $_SESSION['usuario_lector']) {
-    $_SESSION['alertas'] = 'Por favor introducir un usuario';
-    header('location: login_form.php');
+if (!isset($_SESSION['usuario_admin']) && !isset($_SESSION['usuario_lector'])) {
+    $_SESSION['alerta'] = 'Por favor introducir un usuario';
+    echo '<script>';
+        echo 'window.location="login_form.php"';
+         echo '</script>';
 }
 ?>
 <div class="container mt-2" style="height: 500px;  position: relative;">
@@ -13,7 +15,7 @@ if (!isset($_SESSION['usuario_admin']) && $_SESSION['usuario_lector']) {
                 <div class="card-header">
                     
                     
-                 Lista de estudiantes
+                 Lista de estudiantes sin año asignado
                  <?php 
                   if (isset($_SESSION['alertas']['periodo'])) {
                     echo '<span style"color: green>'.$_SESSION['alertas']['periodo'].'</span>';
